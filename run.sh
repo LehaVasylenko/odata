@@ -78,10 +78,13 @@ stop_app() {
     if [[ -n "${PID:-}" && "$PID" =~ ^[0-9]+$ ]] && ps -p "$PID" >/dev/null 2>&1; then
       echo "[app] stopping (pid=${PID})..."
       kill -TERM "$PID" || true
-      for _ in $(seq 1 10); do
+
+      # ждём до 10 секунд пока процесс завершится
+      for ((i=0; i<10; i++)); do
         ps -p "$PID" >/dev/null 2>&1 || break
         sleep 1
-      end
+      done
+
       if ps -p "$PID" >/dev/null 2>&1; then
         echo "[app] still running, kill -9 ${PID}"
         kill -KILL "$PID" || true
@@ -89,7 +92,7 @@ stop_app() {
     fi
     rm -f "$PID_FILE"
   else
-    # фоллбэк: найти по имени jar
+    # фоллбэк: по имени jar
     local PIDS
     PIDS="$(pgrep -f -- "$JAR_BASENAME" || true)"
     if [[ -n "$PIDS" ]]; then
@@ -98,6 +101,7 @@ stop_app() {
     fi
   fi
 }
+
 
 rotate_log_if_big() {
   mkdir -p "$LOG_DIR"
