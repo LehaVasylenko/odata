@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Priority API (OData v2) — шпаргалка по тестовому стенду</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg:#0b1020; --card:#0f1730; --ink:#e9ecf1; --muted:#a9b3d1;
+      --line:#1e284a; --accent:#8bd3ff; --chip:#132043;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.5;margin:0;background:var(--bg);color:var(--ink)}
+    main{max-width:1100px;margin:0 auto;padding:32px}
+    h1,h2,h3{color:#fff;margin-top:1.6em}
+    code, pre{background:#121832;border:1px solid var(--line);border-radius:8px}
+    code{padding:.1em .35em}
+    pre{padding:16px;overflow:auto}
+    a{color:var(--accent)}
+    .pill{display:inline-block;background:var(--chip);border:1px solid var(--line);color:#b9c4e6;padding:.2em .6em;border-radius:999px;font-size:.85em;margin-left:.5em}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .muted{color:var(--muted)}
+    .kbd{border:1px solid #3c4a7a;background:#0d1430;border-radius:6px;padding:.1em .4em}
+    hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+    .btn{display:inline-block;padding:.6em 1em;border-radius:10px;border:1px solid var(--line);background:#101a36;color:#cfe6ff;text-decoration:none}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Priority API (OData v2) — шпаргалка</h1>
+  <div class="card">
+    <p><strong>База:</strong> <code>/odata.svc/</code></p>
+    <p><strong>Аутентификация:</strong> HTTP Basic — <code>tester / tester</code> <span class="pill">роль TESTER</span></p>
+    <p><strong>Метадата:</strong> <a href="/odata.svc/$metadata">/odata.svc/$metadata</a> (XML / EDMX)</p>
+    <p><strong>Сервисный документ:</strong> <a href="/odata.svc/?$format=json">/odata.svc/?$format=json</a></p>
+  </div>
+
+  <h2>Основные EntitySet'ы (ожидаемо)</h2>
+  <div class="grid">
+    <div class="card"><strong>SalesOrders</strong><br><span class="muted">Заказы (уровень 1)</span></div>
+    <div class="card"><strong>SalesOrderLines</strong><br><span class="muted">Строки заказа (уровень 2)</span></div>
+    <div class="card"><strong>LineAllocations</strong><br><span class="muted">Разрезы строки (уровень 3)</span></div>
+    <div class="card"><strong>AllocationSerials</strong><br><span class="muted">Серийники (уровень 4)</span></div>
+    <div class="card"><strong>Customers</strong><br><span class="muted">Клиенты</span></div>
+    <div class="card"><strong>Products</strong><br><span class="muted">Номенклатура</span></div>
+    <div class="card"><strong>Warehouses</strong><br><span class="muted">Склады</span></div>
+    <div class="card"><strong>Batches</strong><br><span class="muted">Партии</span></div>
+    <div class="card"><strong>Locations</strong><br><span class="muted">Ячейки хранения</span></div>
+  </div>
+
+  <h2>Схема (ER-диаграмма)</h2>
+  <div class="card" style="overflow:auto">
+    <svg width="1040" height="520" viewBox="0 0 1040 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ER Diagram">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 4 L 0 8 z" fill="#8bd3ff"/>
+        </marker>
+        <style>
+          .box{fill:#0f1730;stroke:#1e284a;stroke-width:1.2}
+          .title{font:600 14px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; fill:#fff}
+          .sub{font:12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; fill:#a9b3d1}
+          .rel{stroke:#8bd3ff;stroke-width:1.8;fill:none;marker-end:url(#arrow)}
+          .cardi{font:11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; fill:#cfe6ff; paint-order:stroke; stroke:#0b1020; stroke-width:3}
+        </style>
+      </defs>
+
+      <!-- positions -->
+      <!-- Column X centers: 120, 360, 600, 840 -->
+      <!-- Row Y centers: top refs 110; main 250; sub refs 390 -->
+      <!-- Boxes: width 180, height 60 -->
+      <g id="boxes">
+        <!-- Main chain -->
+        <rect class="box" x="30"  y="220" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="120" y="245" text-anchor="middle">Customers</text>
+        <text class="sub"   x="120" y="265" text-anchor="middle">справочник</text>
+
+        <rect class="box" x="270" y="220" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="360" y="245" text-anchor="middle">SalesOrders</text>
+        <text class="sub"   x="360" y="265" text-anchor="middle">уровень 1</text>
+
+        <rect class="box" x="510" y="220" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="600" y="245" text-anchor="middle">SalesOrderLines</text>
+        <text class="sub"   x="600" y="265" text-anchor="middle">уровень 2</text>
+
+        <rect class="box" x="750" y="220" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="840" y="245" text-anchor="middle">LineAllocations</text>
+        <text class="sub"   x="840" y="265" text-anchor="middle">уровень 3</text>
+
+        <rect class="box" x="930" y="60" rx="12" ry="12" width="80" height="60"/>
+        <text class="title" x="970" y="85" text-anchor="middle" font-size="12">Allocation</text>
+        <text class="title" x="970" y="100" text-anchor="middle" font-size="12">Serials</text>
+        <text class="sub"   x="970" y="116" text-anchor="middle">ур. 4</text>
+
+        <!-- Upper refs -->
+        <rect class="box" x="510" y="60" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="600" y="85" text-anchor="middle">Products</text>
+        <text class="sub"   x="600" y="105" text-anchor="middle">справочник</text>
+
+        <rect class="box" x="750" y="60" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="840" y="85" text-anchor="middle">Batches</text>
+        <text class="sub"   x="840" y="105" text-anchor="middle">справочник</text>
+
+        <!-- Lower refs -->
+        <rect class="box" x="510" y="380" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="600" y="405" text-anchor="middle">Warehouses</text>
+        <text class="sub"   x="600" y="425" text-anchor="middle">справочник</text>
+
+        <rect class="box" x="750" y="380" rx="12" ry="12" width="180" height="60"/>
+        <text class="title" x="840" y="405" text-anchor="middle">Locations</text>
+        <text class="sub"   x="840" y="425" text-anchor="middle">справочник</text>
+      </g>
+
+      <!-- relations -->
+      <!-- Customers (120,250) -> Orders (360,250) -->
+      <path class="rel" d="M210,250 L270,250"/>
+      <text class="cardi" x="240" y="240" text-anchor="middle">*..1</text>
+
+      <!-- Orders -> Lines -->
+      <path class="rel" d="M450,250 L510,250"/>
+      <text class="cardi" x="480" y="240" text-anchor="middle">1..*</text>
+
+      <!-- Lines -> Allocations -->
+      <path class="rel" d="M690,250 L750,250"/>
+      <text class="cardi" x="720" y="240" text-anchor="middle">1..*</text>
+
+      <!-- Allocations -> Serials (to small box at top-right) -->
+      <path class="rel" d="M930,230 C960,220 960,160 930,140"/>
+      <text class="cardi" x="940" y="200">1..*</text>
+
+      <!-- Line -> Product (up) -->
+      <path class="rel" d="M600,220 L600,120"/>
+      <text class="cardi" x="610" y="170">*..1</text>
+
+      <!-- Line -> Warehouse (down) -->
+      <path class="rel" d="M600,280 L600,380"/>
+      <text class="cardi" x="610" y="330">*..1</text>
+
+      <!-- Allocation -> Batch (up) -->
+      <path class="rel" d="M840,220 L840,120"/>
+      <text class="cardi" x="850" y="170">*..1</text>
+
+      <!-- Allocation -> Location (down) -->
+      <path class="rel" d="M840,280 L840,380"/>
+      <text class="cardi" x="850" y="330">*..1</text>
+    </svg>
+    <div class="muted">Кардинальности указаны относительно направления стрелки (например, <code>Orders → Lines: 1..*</code>).</div>
+  </div>
+
+  <h2>Полезные опции запроса</h2>
+  <ul>
+    <li><code>$format=json</code> — получить JSON</li>
+    <li><code>$top</code>, <code>$skip</code> — пагинация</li>
+    <li><code>$orderby=Field desc</code> — сортировка</li>
+    <li><code>$filter=Field eq 123 and Name lt 'Z'</code> — фильтр</li>
+    <li><code>$select=Field1,Field2</code> — выбор полей</li>
+    <li><code>$expand=Nav1,Nav2(NestedNav)</code> — разворачивание связей</li>
+    <li><code>/$count</code> — счётчик записей</li>
+  </ul>
+
+  <h2>Примеры</h2>
+  <h3>Сервисный документ в JSON</h3>
+  <pre><code>GET /odata.svc/?$format=json</code></pre>
+
+  <h3>Список заказов</h3>
+  <pre><code>GET /odata.svc/SalesOrders?$top=5&$orderby=OrderDate desc&$format=json</code></pre>
+
+  <h3>Глубокий expand (4 уровня + справочники)</h3>
+  <div class="card">
+    <p><em>Названия навигаций смотри в <a href="/odata.svc/$metadata">/ $metadata</a>; у JPA-провайдера они могут называться вроде <code>SalesOrderLineDetails</code>, <code>LineAllocationDetails</code>, <code>AllocationSerials</code> и т.п.</em></p>
+  </div>
+  <pre><code>GET /odata.svc/SalesOrders?$top=3
+  &amp;$expand=Customer,
+           SalesOrderLineDetails($expand=Product,Warehouse,
+                                 LineAllocationDetails($expand=Batch,Location,AllocationSerials))
+  &amp;$format=json</code></pre>
+
+  <h3>Фильтр, сортировка, пагинация (по строкам заказа)</h3>
+  <pre><code>GET /odata.svc/SalesOrderLines?$filter=Quantity gt 0
+  &amp;$orderby=UnitPrice desc
+  &amp;$top=10&amp;$skip=0&amp;$format=json</code></pre>
+
+  <h3>Навигация по ключам</h3>
+  <pre><code>GET /odata.svc/SalesOrders(1)/SalesOrderLineDetails?$format=json
+GET /odata.svc/SalesOrderLines(1)/LineAllocationDetails?$format=json
+GET /odata.svc/LineAllocations(1)/AllocationSerials?$format=json</code></pre>
+
+  <h3>$count</h3>
+  <pre><code>GET /odata.svc/SalesOrders/$count</code></pre>
+
+  <h3>Создание (POST)</h3>
+  <p>OData v2 даты — в формате <code>/Date(UTC_MILLIS)/</code>.</p>
+  <pre><code>POST /odata.svc/SalesOrders
+Content-Type: application/json
+Accept: application/json
+
+{ "OrderNo": "SO-9999", "OrderDate": "/Date(1735689600000)/", "Customer": 1 }</code></pre>
+
+  <h3>Создание дочерней сущности по навигации</h3>
+  <pre><code>POST /odata.svc/SalesOrders(1)/SalesOrderLineDetails
+Content-Type: application/json
+Accept: application/json
+
+{ "LineNo": 1, "Product": 1001, "Warehouse": 2, "Quantity": 5.000, "UnitPrice": 12.50 }</code></pre>
+
+  <h2 id="postman">Postman-коллекция</h2>
+  <p>
+    <a class="btn" href="collection.json" download>⬇ Скачать коллекцию (collection.json)</a>
+  </p>
+
+  <hr>
+  <p class="muted">Подсказка: в <span class="kbd">Postman</span> достаточно задать <em>Basic Auth</em> для коллекции (<code>tester/tester</code>) и переменную <code>baseUrl</code> = <code>http://localhost:8080/odata.svc</code>.</p>
+</main>
+</body>
+</html>

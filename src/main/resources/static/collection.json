@@ -1,0 +1,356 @@
+{
+  "info": {
+    "name": "OData Regression (Priority API v2)",
+    "_postman_id": "0b4df7c5-7bce-4d1b-a0e6-odata-reg",
+    "description": "Набор базовых запросов к тестовому OData v2-серверу.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Service Document (JSON)",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/?$format=json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "query": [
+            {
+              "key": "$format",
+              "value": "json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "$metadata",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/$metadata",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "$metadata"
+          ]
+        }
+      }
+    },
+    {
+      "name": "SalesOrders — list",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrders?$top=5&$orderby=OrderDate desc&$format=json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrders"
+          ],
+          "query": [
+            {
+              "key": "$top",
+              "value": "5"
+            },
+            {
+              "key": "$orderby",
+              "value": "OrderDate desc"
+            },
+            {
+              "key": "$format",
+              "value": "json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SalesOrders — deep expand (4 уровня)",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrders?$top=1&$expand=Customer,SalesOrderLineDetails($expand=Product,Warehouse,LineAllocationDetails($expand=Batch,Location,AllocationSerials))&$format=json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrders"
+          ],
+          "query": [
+            {
+              "key": "$top",
+              "value": "1"
+            },
+            {
+              "key": "$expand",
+              "value": "Customer,SalesOrderLineDetails($expand=Product,Warehouse,LineAllocationDetails($expand=Batch,Location,AllocationSerials))"
+            },
+            {
+              "key": "$format",
+              "value": "json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SalesOrderLines — filter/orderby/top",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrderLines?$filter=Quantity gt 0&$orderby=UnitPrice desc&$top=3&$format=json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrderLines"
+          ],
+          "query": [
+            {
+              "key": "$filter",
+              "value": "Quantity gt 0"
+            },
+            {
+              "key": "$orderby",
+              "value": "UnitPrice desc"
+            },
+            {
+              "key": "$top",
+              "value": "3"
+            },
+            {
+              "key": "$format",
+              "value": "json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SalesOrders — $count",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrders/$count",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrders",
+            "$count"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create SalesOrder",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"OrderNo\":\"SO-9999\", \"OrderDate\":\"/Date(1735689600000)/\", \"Customer\":1 }"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrders"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create SalesOrderLine (via nav)",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "tester",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "tester",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"LineNo\":1, \"Product\":1001, \"Warehouse\":2, \"Quantity\":5.000, \"UnitPrice\":12.50 }"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/SalesOrders(1)/SalesOrderLineDetails",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "SalesOrders(1)",
+            "SalesOrderLineDetails"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/odata.svc"
+    }
+  ]
+}
