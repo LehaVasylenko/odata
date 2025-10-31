@@ -2,8 +2,8 @@ package odata.demo.logging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -52,12 +52,12 @@ public class ODataAccessLogFilter extends OncePerRequestFilter {
                 uri += "?" + URLDecoder.decode(qs, StandardCharsets.UTF_8);
             }
 
-            // кто
-            String user = "-";
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated()) {
-                user = auth.getName();
-            }
+//            // кто
+//            String user = "-";
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            if (auth != null && auth.isAuthenticated()) {
+//                user = auth.getName();
+//            }
 
             // размеры
             int reqBytes = reqW.getContentAsByteArray() != null ? reqW.getContentAsByteArray().length : 0;
@@ -68,8 +68,8 @@ public class ODataAccessLogFilter extends OncePerRequestFilter {
             }
             int respBytes = respW.getContentAsByteArray() != null ? respW.getContentAsByteArray().length : 0;
 
-            log.info("OData {} {} -> {} {}ms user={} req={}B resp={}B",
-                    method, uri, status, tookMs, user, reqBytes, respBytes);
+            log.info("OData {} {} -> {} {}ms req={}B resp={}B",
+                    method, uri, status, tookMs, /*user,*/ reqBytes, respBytes);
 
             // важно: вернуть тело клиенту
             respW.copyBodyToResponse();
