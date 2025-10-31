@@ -126,29 +126,73 @@ build_app() {
 }
 
 start_app() {
-  local OUT_ABS; OUT_ABS="$(abspath "$OUTBOX_DIR")"
-  mkdir -p "$OUT_ABS" "$LOG_DIR" "$RUN_DIR"
+  set -euo pipefail
 
-  if [[ ! -f "$JAR_PATH" ]]; then
-    echo "[app] Jar не найден: $JAR_PATH" >&2
-    exit 1
+  # Имя сервиса и пользователь (можешь экспортировать заранее)
+  local APP_NAME="${APP_NAME:-myapp}"
+  local RUN_USER="${RUN_USER:-$USER}"
+
+  local APP_DIR="/opt/${APP_NAME}"
+  local ENV_DIR="/etc/${APP_NAME}"
+  local ENV_FILE="${ENV_DIR}/env"
+  local SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
+
+  # Где взять JAR: если переменная не задана — берём последний из target/
+  if [[ -z "${JAR_PATH:-}" ]]; then
+    JAR_PATH="$(ls -1t target/*-runner.jar target/*-all.jar target/*with-dependencies*.jar target/*.jar 2>/dev/null | head -n1 || true)"
+  fi
+  if [[ -z "${JAR_PATH:-}" || ! -f "$JAR_PATH" ]]; then
+    echo "ERROR: не найден jar в target/ (собери проект: mvn -DskipTests package)"; return 1
   fi
 
-  local JAR_ABS; JAR_ABS="$(abspath "$JAR_PATH")"
-  echo "[app] starting…"
-  echo "      JAR: $JAR_ABS"
-  echo "      OUTBOX_DIR: $OUT_ABS"
-  echo "      LOG: $LOG_FILE"
+  local JAVA_BIN
+  JAVA_BIN="$(command -v java || true)"
+  [[ -n "$JAVA_BIN" ]] || { echo "ERROR: java не найдена в PATH"; return 1; }
 
-  rotate_log_if_big
+  # Директории и деплой JAR
+  sudo install -d -m0755 "$APP_DIR" "$ENV_DIR" "/var/log/${APP_NAME}"
+  sudo cp -f "$JAR_PATH" "${APP_DIR}/app.jar"
+  sudo chown -R "$RUN_USER":"$RUN_USER" "$APP_DIR" "/var/log/${APP_NAME}"
+  sudo chmod 0755 "${APP_DIR}/app.jar"
 
-  # Запускаем в фоне; pid сохраняем сразу
-  nohup bash -c "exec java ${JAVA_OPTS} -Dapp.outbox.dir='${OUT_ABS}' -jar '${JAR_ABS}'" \
-    >>"$LOG_FILE" 2>&1 &
+  # Те же опции, что ты сейчас передаёшь в ручном запуске
+  sudo tee "$ENV_FILE" >/dev/null <<EOF
+JAVA_OPTS="${JAVA_OPTS:-}"
+APP_OPTS="${APP_OPTS:-}"
+EOF
+  sudo chmod 0644 "$ENV_FILE"
 
-  echo $! > "$PID_FILE"
-  echo "[app] started, pid=$(cat "$PID_FILE")"
+  # systemd unit (минимальный)
+  sudo tee "$SERVICE_FILE" >/dev/null <<EOF
+[Unit]
+Description=${APP_NAME} (Java/Quarkus)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=${RUN_USER}
+WorkingDirectory=${APP_DIR}
+EnvironmentFile=${ENV_FILE}
+ExecStart=${JAVA_BIN} \$JAVA_OPTS -jar ${APP_DIR}/app.jar \$APP_OPTS
+Restart=always
+RestartSec=3
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  # Перезагрузка unit’ов, автозапуск и старт
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now "${APP_NAME}.service"
+
+  echo "[OK] ${APP_NAME} запущен через systemd"
+  echo "Статус:  sudo systemctl status ${APP_NAME}"
+  echo "Логи:    journalctl -u ${APP_NAME} -f"
+  echo "Опции:   sudo nano ${ENV_FILE}  &&  sudo systemctl restart ${APP_NAME}"
 }
+
 
 ### === Выполнение ===
 start_ssh_agent_if_needed
